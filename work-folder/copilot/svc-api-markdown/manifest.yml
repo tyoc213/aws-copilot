@@ -34,8 +34,9 @@ network:
  
 # Optional fields for more advanced use-cases.
 #
-#variables:                    # Pass environment variables as key value pairs.
-#  LOG_LEVEL: info
+variables:                    # Pass environment variables as key value pairs.
+  LOG_LEVEL: info
+  VAR_1: "this is a variable for any environment"
 
 #secrets:                      # Pass secrets from AWS Systems Manager (SSM) Parameter Store.
 #  GITHUB_TOKEN: GITHUB_TOKEN  # The key is the name of the environment variable, the value is the name of the SSM parameter.
@@ -46,3 +47,14 @@ network:
 #    count: 2               # Number of tasks to run for the "test" environment.
 #    deployment:            # The deployment strategy for the "test" environment.
 #       rolling: 'recreate' # Stops existing tasks before new ones are started for faster deployments.
+
+environments:
+  staging:
+    variables:
+      VAR_2: "this variable is defined for staging"
+  production:
+    variables:
+      VAR_2: "This is a production varaible set"
+
+secrets:
+    SECRET_VAR: /copilot/${COPILOT_APPLICATION_NAME}/${COPILOT_ENVIRONMENT_NAME}/secrets/SECRET_VAR
