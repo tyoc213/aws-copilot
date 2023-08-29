@@ -54,6 +54,10 @@ def save_data(markdown, html):
         return False
 
 
+@app.route("/test", methods=["GET"])
+def x()
+    return {"status": "ok"}
+
 @app.route('/health', methods=['GET'])
 def healthcheck():
     data = {"status": "ok"}
