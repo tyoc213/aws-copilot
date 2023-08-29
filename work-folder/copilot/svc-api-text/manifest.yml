@@ -45,3 +45,7 @@ network:
 http:
   path: "internal-api"
   healthcheck: "/health"
+  network:
+    vpc:
+      placement: private
+

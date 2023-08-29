@@ -127,6 +127,50 @@ def to_markdown():
         return jsonify(response_data), response_status
 
 
+def call_svc_api_text(input_markdown):
+    URL = "http://svc-api-text.staging.module1.internal/internal-api/text"
+    internal_payload = {"text": input_markdown}
+    internal_request_call = urllib_request.Request(
+        URL, data=json.dumps(internal_payload).encode('utf-8'), headers={'Content-type': 'application/json'})
+    internal_response = urllib_request.urlopen(internal_request_call)
+    response_json = json.loads(
+        internal_response.read().decode('utf-8'))    
+    return response_json        
+
+
+@app.route('/api/markdown/process', methods=['POST'])
+def to_markdown():
+    response_data = {}
+    response_status = 500    
+    try:
+        logging.info("Received request: {}".format(request.json))
+        if "text" not in request.json:
+            response_data = {"error":"No accepted parameters"}
+            response_status = 400
+            return jsonify(response_data), response_status
+
+        if "text" in request.json:
+            input_markdown = request.json['text']
+            html = markdown.markdown(input_markdown)
+            db_status = save_data(input_markdown, html)
+            if db_status:
+                response_data = {"markdown": input_markdown, "html": html}
+                response_status = 200
+                # ADD THIS — Internal API call
+                response_json = call_svc_api_text(input_markdown)
+                response_data["svc-api-text"] = response_json    
+                # End of change
+            else:                
+                response_data = {"error": "Unable to save data to database"}
+                response_status = 500
+            return jsonify(response_data), response_status
+    except Exception as e:
+        logging.error("Error on handling request {}".format(e), exc_info=True)
+        return jsonify(response_data), response_status
+
+
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=9090, debug=DEBUG_MODE)
+
